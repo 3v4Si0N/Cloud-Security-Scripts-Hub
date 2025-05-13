@@ -36,7 +36,10 @@ Scripts include comments and logging for clarity and traceability.
 - [`ec2-metadata-dumper.py`](aws/ec2-metadata-dumper.py): Dumps metadata from EC2. **This script must be used inside the EC2**
 - [`aws-to-gcp-federation.py`](aws/aws-to-gcp-federation.py): Lateral Movement abusing Workload Identity Federation json file
 ### Azure
-- [`azure-storage-downloader.py`](azure/azure-storage-downloader.py): Downloads information from Azure Storage and Key Vault.
+- [`azure-auto-vault-storage-downloader.py`](azure/azure-auto-vault-storage-downloader.py): Downloads information from Azure Storage and Key Vault using vault token and management token enumerating resources from subscription.
+- [`azure-vault-dumper.py`](azure/azure-vault-dumper.py): List and download secrets from Azure Key Vault.
+- [`azure-storage-dumper.py`](azure/azure-storage-dumper.py): List and download data from Azure Storage.
+
 
 ### GCP
 - [`bucket-downloader.py`](gcp/bucket-downloader.py): Lists and download information inside a bucket.

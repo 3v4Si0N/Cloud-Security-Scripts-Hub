@@ -88,6 +88,78 @@ EC2_INSTANCE_OPERATIONS = [
     # Instance hibernation operations
     {"name": "Modify Instance Metadata Options", "method": "modify_instance_metadata_options", 
      "params": {"InstanceId": "INSTANCE_ID", "HttpTokens": "optional", "HttpEndpoint": "enabled"}},
+    
+    # ADDED OPERATIONS THAT USE InstanceIds PARAMETER
+    
+    # Instance hibernation operations
+    {"name": "Start Instance Hibernation", "method": "stop_instances", 
+     "params": {"InstanceIds": ["INSTANCE_ID"], "Hibernate": True}},
+    
+    # Bundle operations (for instance store-backed AMIs)
+    {"name": "Bundle Instance", "method": "bundle_instance", 
+     "params": {"InstanceId": "INSTANCE_ID", "Storage": {"S3": {"AWSAccessKeyId": "DUMMY", "Bucket": "my-bucket", "Prefix": "bundle/"}}}},
+    
+    # Instance type operations
+    {"name": "Describe Instance Types (for instance)", "method": "describe_instance_types", 
+     "params": {"InstanceTypes": ["t2.micro"]}},  # Not using InstanceIds but related
+    
+    # Instance attribute modification
+    {"name": "Enable Instance Detailed Monitoring", "method": "monitor_instances", 
+     "params": {"InstanceIds": ["INSTANCE_ID"]}},
+    
+    # Instance health check
+    {"name": "Report Instance Status", "method": "report_instance_status", 
+     "params": {"Instances": ["INSTANCE_ID"], "Status": "ok", "ReasonCodes": ["instance-stuck-in-state"]}},
+    
+    # Scheduled instance operations
+    {"name": "Describe Scheduled Instance Availability", "method": "describe_scheduled_instance_availability", 
+     "params": {"RecurrenceType": "Daily", "FirstSlotStartTimeRange": {"EarliestTime": "2023-01-01T00:00:00Z", "LatestTime": "2023-01-02T00:00:00Z"}}},
+    
+    # Spot instance operations
+    {"name": "Request Spot Instances", "method": "request_spot_instances", 
+     "params": {"InstanceCount": 1, "LaunchSpecification": {"InstanceType": "t2.micro", "ImageId": "ami-12345"}}},
+    
+    # Fleet operations
+    {"name": "Describe Fleet Instances", "method": "describe_fleet_instances", 
+     "params": {"FleetId": "fleet-12345"}},
+    
+    # AMI operations using instances
+    {"name": "Create Image", "method": "create_image", 
+     "params": {"InstanceId": "INSTANCE_ID", "Name": "test-image"}},
+    
+    # Additional Instance Group Operations
+    {"name": "Run Instances", "method": "run_instances", 
+     "params": {"ImageId": "ami-12345", "InstanceType": "t2.micro", "MinCount": 1, "MaxCount": 1}},
+    
+    {"name": "Describe Instances (specific)", "method": "describe_instances", 
+     "params": {"InstanceIds": ["INSTANCE_ID"]}},
+    
+    {"name": "Send Diagnostic Interrupt", "method": "send_diagnostic_interrupt", 
+     "params": {"InstanceId": "INSTANCE_ID"}},
+    
+    {"name": "Reset Instance Attribute", "method": "reset_instance_attribute", 
+     "params": {"InstanceId": "INSTANCE_ID", "Attribute": "sourceDestCheck"}},
+    
+    {"name": "Enable API Termination", "method": "modify_instance_attribute", 
+     "params": {"InstanceId": "INSTANCE_ID", "DisableApiTermination": {"Value": False}}},
+    
+    {"name": "Disable API Termination", "method": "modify_instance_attribute", 
+     "params": {"InstanceId": "INSTANCE_ID", "DisableApiTermination": {"Value": True}}},
+    
+    {"name": "Get Launch Template Data", "method": "get_launch_template_data", 
+     "params": {"InstanceId": "INSTANCE_ID"}},
+    
+    {"name": "Modify Instance Capacity Reservation Attributes", "method": "modify_instance_capacity_reservation_attributes", 
+     "params": {"InstanceId": "INSTANCE_ID", "CapacityReservationSpecification": {"CapacityReservationPreference": "open"}}},
+    
+    {"name": "Modify Instance Placement", "method": "modify_instance_placement", 
+     "params": {"InstanceId": "INSTANCE_ID", "Tenancy": "dedicated"}},
+    
+    {"name": "Modify Instance Event Start Time", "method": "modify_instance_event_start_time", 
+     "params": {"InstanceId": "INSTANCE_ID", "InstanceEventId": "instance-event-0abcdef1234567890", "NotBefore": "2023-01-01T00:00:00Z"}},
+    
+    {"name": "Describe Instance Topology", "method": "describe_instance_topology", 
+     "params": {"InstanceIds": ["INSTANCE_ID"]}},
 ]
 
 def check_permission(ec2_client, operation, instance_id):
@@ -216,6 +288,23 @@ def main():
                     cli_params.append("--association-id iip-assoc-12345")  # Example value
                 elif key == "HttpTokens" and "HttpEndpoint" in params:
                     cli_params.append("--http-tokens optional --http-endpoint enabled")
+                elif key == "Hibernate":
+                    cli_params.append("--hibernate")
+                elif key == "Instances":
+                    cli_params.append(f"--instances {args.instance_id}")
+                elif key == "Storage":
+                    # Skip complex nested structures
+                    pass
+                elif key == "DisableApiTermination":
+                    cli_params.append(f"--disable-api-termination {str(value['Value']).lower()}")
+                elif key == "CapacityReservationSpecification":
+                    cli_params.append("--capacity-reservation-specification CapacityReservationPreference=open")
+                elif key == "Tenancy":
+                    cli_params.append(f"--tenancy {value}")
+                elif key == "InstanceEventId":
+                    cli_params.append(f"--instance-event-id {value}")
+                elif key == "NotBefore":
+                    cli_params.append(f"--not-before {value}")
             
             # Construct full CLI command
             full_command = f"aws ec2 {cli_command} {' '.join(cli_params)}"

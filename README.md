@@ -34,11 +34,13 @@ Scripts include comments and logging for clarity and traceability.
 ### AWS
 - [`ec2-instance-permission-checker.py`](aws/ec2-instance-permission-checker.py): Checks permissions for various AWS EC2 instance-specific actions that require an instance-id parameter.
 - [`ec2-metadata-dumper.py`](aws/ec2-metadata-dumper.py): Dumps metadata from EC2. **This script must be used inside the EC2**
+- [`aws-to-gcp-federation.py`](aws/aws-to-gcp-federation.py): Lateral Movement abusing Workload Identity Federation json file
 ### Azure
 - [`azure-storage-downloader.py`](azure/azure-storage-downloader.py): Downloads information from Azure Storage and Key Vault.
 
 ### GCP
-- [`bucket_downloader.py`](gcp/bucket_downloader.py): Lists and download information inside a bucket.
+- [`bucket-downloader.py`](gcp/bucket-downloader.py): Lists and download information inside a bucket.
+- [`gcp-to-aws-federation.py`](gcp/gcp-to-aws-federation.py): Federate from GCP to AWS using OIDC identity token
 
 ### Alibaba Cloud
 - ...
